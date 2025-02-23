@@ -161,11 +161,23 @@ a low level of contention (there's at the very least the mention that there's lo
 contention), meaning that threads are not ending blocked an awful lot.
 
 And by analyzing a benchmark session with `dotnet-counters`, in where we did 
-two different tests:
+three different tests:
 
-_Only Sync Sinks:_
+_Only Sync Sinks:_ thread count: 4, work item count: 17,486
 
-_Only Async Sinks:_
+_Only Async Sinks:_ thread count: 4, (and 12 at one point), work item count: 10,379
+
+_Both Sinks at the same time: thread count: 4, (and 12 at one point), work item count: 54,099
+
+We can see how combining the two approaches adds up to the work item count, we can 
+also see how **Sync Sinks** produce more work items, this is due to more threads 
+actively blocked, requiring more work items to manage parallelism.
+
+**IMPORTANT:** When working with truly async code, a thread that starts a process 
+the moment it hits some I/O piece of code, it will have that operation handed over 
+to the OS, and it's through the OS mechanisms that then the app is notified when an operation 
+is done. When the app picks up on this notification it might resume work on the 
+original thread or on just another available one (_but only when neccesary_).
 
 ## References
 
